@@ -87,7 +87,7 @@ func HttpRequestFromString(request string) HttpRequest {
 	}
 
 	var userAgent string
-	if len(tokenizedRequest) > 3 {
+	if len(tokenizedRequest) > 4 {
 		userAgent = tokenizedRequest[2]
 		userAgent = strings.Split(userAgent, ":")[1]
 		userAgent = strings.Trim(userAgent, " ")
