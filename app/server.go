@@ -90,7 +90,7 @@ func CraftHttpResponse(request HttpRequest) string {
 		if request.Path == "/" {
 
 			response.StatusLine = HttpResponseOk
-			httpResponse = response.StatusLine
+			httpResponse = response.StatusLine + "\r\n"
 
 		} else {
 
