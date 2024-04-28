@@ -65,10 +65,11 @@ func handleClient(conn net.Conn) {
 		return
 	}
 
-	//fmt.Printf("Received: %v", string(buffer[:]))
-	httpRequest := HttpRequestFromString(string(buffer[:]))
+	fmt.Printf("====== RECEIVED ======\n %v\n\n", buffer[:])
+
+	httpRequest := HttpRequestFromString(strings.TrimSuffix(string(buffer[:]), "\r\n"))
 	test := []byte(CraftHttpResponse(httpRequest))
-	fmt.Printf("====== STREAMED ======\n%c\n\n%v\n", test, test)
+	fmt.Printf("\n====== STREAMED ======\n%c\n\n%v\n", test, test)
 	_, err = conn.Write(test)
 	if err != nil {
 		fmt.Println("Error Sending:", err)
@@ -78,12 +79,18 @@ func handleClient(conn net.Conn) {
 
 func HttpRequestFromString(request string) HttpRequest {
 
+	request = strings.TrimSuffix(request, "\r\n")
+
 	tokenizedRequest := strings.Split(request, "\r\n")
 	startLine := tokenizedRequest[0]
 
 	fmt.Printf("====== REQUEST ======\n")
 	for i, val := range tokenizedRequest {
-		fmt.Printf("%v: %v\n", i, val)
+		fmt.Printf("%v: %v", i, val)
+		if val == "" {
+			fmt.Printf("EMPTY")
+		}
+		fmt.Printf("\n")
 	}
 
 	var userAgent string
