@@ -15,8 +15,9 @@ const PlainTextResponse string = "Content-Type: text/plain\r\n"
 const ContentLengthResponse string = "Content-Length: "
 
 type HttpRequest struct {
-	Method string
-	Path   string
+	Method    string
+	Path      string
+	UserAgent string
 }
 
 type HttpResponse struct {
@@ -75,9 +76,14 @@ func HttpRequestFromString(request string) HttpRequest {
 	tokenizedRequest := strings.Split(request, "\r\n")
 	startLine := tokenizedRequest[0]
 
+	var userAgent string
+	userAgent = tokenizedRequest[2]
+	userAgent = strings.Split(userAgent, ":")[1]
+	userAgent = strings.Trim(userAgent, " ")
+
 	tokenizedStartLine := strings.Split(startLine, " ")
 
-	return HttpRequest{Method: tokenizedStartLine[0], Path: tokenizedStartLine[1]}
+	return HttpRequest{Method: tokenizedStartLine[0], Path: tokenizedStartLine[1], UserAgent: userAgent}
 
 }
 
@@ -112,6 +118,16 @@ func CraftHttpResponse(request HttpRequest) string {
 				// }
 
 				fmt.Printf("====== RESPONSE ======\n%v\n", httpResponse)
+
+			} else if tokenizedPath[0] == "user-agent" {
+				response.StatusLine = HttpResponseOk
+				response.ResponseBody = request.UserAgent
+				response.BodyLength = len(request.UserAgent)
+
+				httpResponse = response.StatusLine +
+					PlainTextResponse +
+					ContentLengthResponse + fmt.Sprintf("%v", response.BodyLength) + "\r\n\r\n" +
+					response.ResponseBody
 
 			} else {
 				response.StatusLine = HttpResponseNotFound
