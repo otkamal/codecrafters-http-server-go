@@ -10,7 +10,7 @@ import (
 const BufferSize int = 1024
 
 const HttpResponseOk string = "HTTP/1.1 200 OK\r\n"
-const HttpResponseNotFound string = "HTTP/1.1 404 Not Found\r\n"
+const HttpResponseNotFound string = "HTTP/1.1 404 Not Found\r\n\r\n"
 const PlainTextResponse string = "Content-Type: text/plain\r\n"
 const ContentLengthResponse string = "Content-Length: "
 
