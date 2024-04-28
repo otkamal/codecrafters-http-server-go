@@ -5,6 +5,7 @@ import (
 	"net"
 	"os"
 	"strings"
+	"sync"
 )
 
 const BufferSize int = 1024
@@ -30,6 +31,7 @@ type HttpResponse struct {
 func main() {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
 	fmt.Println("Logs from your program will appear here!")
+	wg := sync.WaitGroup{}
 
 	l, err := net.Listen("tcp", "0.0.0.0:4221")
 	if err != nil {
@@ -45,7 +47,10 @@ func main() {
 		}
 
 		go handleClient(conn)
+		wg.Wait()
+
 	}
+
 }
 
 func handleClient(conn net.Conn) {
@@ -76,10 +81,17 @@ func HttpRequestFromString(request string) HttpRequest {
 	tokenizedRequest := strings.Split(request, "\r\n")
 	startLine := tokenizedRequest[0]
 
+	fmt.Printf("====== REQUEST ======\n")
+	for i, val := range tokenizedRequest {
+		fmt.Printf("%v: %v\n", i, val)
+	}
+
 	var userAgent string
-	userAgent = tokenizedRequest[2]
-	userAgent = strings.Split(userAgent, ":")[1]
-	userAgent = strings.Trim(userAgent, " ")
+	if len(tokenizedRequest) > 1 {
+		userAgent = tokenizedRequest[2]
+		userAgent = strings.Split(userAgent, ":")[1]
+		userAgent = strings.Trim(userAgent, " ")
+	}
 
 	tokenizedStartLine := strings.Split(startLine, " ")
 
