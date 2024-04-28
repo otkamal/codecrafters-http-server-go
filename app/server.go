@@ -62,7 +62,7 @@ func handleClient(conn net.Conn) {
 	//fmt.Printf("Received: %v", string(buffer[:]))
 	httpRequest := HttpRequestFromString(string(buffer[:]))
 	test := []byte(CraftHttpResponse(httpRequest))
-	fmt.Printf("====== STREAMED ======\n[%c\n\n%v\n", test, test)
+	fmt.Printf("====== STREAMED ======\n%c\n\n%v\n", test, test)
 	_, err = conn.Write(test)
 	if err != nil {
 		fmt.Println("Error Sending:", err)
