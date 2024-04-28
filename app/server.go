@@ -8,8 +8,11 @@ import (
 )
 
 const BufferSize int = 1024
-const HttpResponseOk string = "HTTP/1.1 200 OK\r\n\r\n"
-const HttpResponseNotFound string = "HTTP/1.1 404 Not Found\r\n\r\n"
+
+const HttpResponseOk string = "HTTP/1.1 200 OK\r\n"
+const HttpResponseNotFound string = "HTTP/1.1 404 Not Found\r\n"
+const PlainTextResponse string = "Content-Type: text/plain\r\n"
+const ContentLengthResponse string = "Content-Length: "
 
 type HttpRequest struct {
 	Method string
@@ -17,7 +20,10 @@ type HttpRequest struct {
 }
 
 type HttpResponse struct {
-	StatusLine string
+	StatusLine      string
+	ResponseHeaders string
+	ResponseBody    string
+	BodyLength      int
 }
 
 func main() {
@@ -42,6 +48,7 @@ func main() {
 }
 
 func handleClient(conn net.Conn) {
+
 	defer conn.Close()
 
 	buffer := make([]byte, BufferSize)
@@ -52,10 +59,11 @@ func handleClient(conn net.Conn) {
 		return
 	}
 
-	fmt.Printf("Received: %v", string(buffer[:]))
+	//fmt.Printf("Received: %v", string(buffer[:]))
 	httpRequest := HttpRequestFromString(string(buffer[:]))
-
-	_, err = conn.Write([]byte(CraftHttpResponse(httpRequest).StatusLine))
+	test := []byte(CraftHttpResponse(httpRequest))
+	fmt.Printf("====== STREAMED ======\n[%c\n\n%v\n", test, test)
+	_, err = conn.Write(test)
 	if err != nil {
 		fmt.Println("Error Sending:", err)
 		return
@@ -67,27 +75,52 @@ func HttpRequestFromString(request string) HttpRequest {
 	tokenizedRequest := strings.Split(request, "\r\n")
 	startLine := tokenizedRequest[0]
 
-	// fmt.Println(startLine)
-	// for _, token := range strings.Split(startLine, " ") {
-	// 	fmt.Printf("%v\n", token)
-	// }
-
 	tokenizedStartLine := strings.Split(startLine, " ")
 
 	return HttpRequest{Method: tokenizedStartLine[0], Path: tokenizedStartLine[1]}
 
 }
 
-func CraftHttpResponse(request HttpRequest) HttpResponse {
+func CraftHttpResponse(request HttpRequest) string {
 	var response HttpResponse
+	var httpResponse string
 	switch request.Method {
 	case "GET":
-		switch request.Path {
-		case "/":
+
+		if request.Path == "/" {
+
 			response.StatusLine = HttpResponseOk
-		default:
-			response.StatusLine = HttpResponseNotFound
+			httpResponse = response.StatusLine
+
+		} else {
+
+			//parse the path
+			tokenizedPath := strings.Split(request.Path, "/")[1:]
+
+			if tokenizedPath[0] == "echo" {
+				response.StatusLine = HttpResponseOk
+				response.ResponseBody = strings.Join(tokenizedPath[1:], "/")
+				response.BodyLength = len(response.ResponseBody)
+
+				httpResponse = response.StatusLine +
+					PlainTextResponse +
+					ContentLengthResponse + fmt.Sprintf("%v", response.BodyLength) + "\r\n\r\n" +
+					response.ResponseBody
+
+				// if response.ResponseBody != "" {
+				// 	httpResponse += "\r\n"
+				// }
+
+				fmt.Printf("====== RESPONSE ======\n%v\n", httpResponse)
+
+			} else {
+				response.StatusLine = HttpResponseNotFound
+				httpResponse = response.StatusLine
+			}
+
 		}
+
 	}
-	return response
+
+	return httpResponse
 }
