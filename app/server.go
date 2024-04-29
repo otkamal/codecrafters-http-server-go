@@ -162,8 +162,11 @@ func CraftHttpResponse(request HttpRequest, baseDirectory *string) []byte {
 			} else if tokenizedPath[0] == "files" {
 
 				file, _ := os.ReadFile(*baseDirectory + "/" + tokenizedPath[1])
+
+				fmt.Printf("\nRequested File: %v\n", *baseDirectory+"/"+tokenizedPath[1])
 				response.StatusLine = HttpResponseOk
 				response.ResponseBody = string(file)
+				fmt.Printf("====== FILE CONTENTS ======\n%v", response.ResponseBody)
 				response.BodyLength = len(response.ResponseBody)
 
 				httpResponse = response.StatusLine +
