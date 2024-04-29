@@ -33,9 +33,10 @@ func main() {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
 	fmt.Println("Logs from your program will appear here!")
 
-	var flag = flag.String("directory", "", "Directory for file")
+	var dir = flag.String("directory", "", "Directory for file")
+	flag.Parse()
 
-	fmt.Printf("Home Directory: %v\n", *flag)
+	fmt.Printf("Home Directory: %v\n", *dir)
 
 	l, err := net.Listen("tcp", "0.0.0.0:4221")
 	if err != nil {
@@ -50,7 +51,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		go handleClient(conn, *flag)
+		go handleClient(conn, *dir)
 
 	}
 
