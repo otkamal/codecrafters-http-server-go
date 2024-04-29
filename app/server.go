@@ -50,13 +50,13 @@ func main() {
 			os.Exit(1)
 		}
 
-		go handleClient(conn, flag)
+		go handleClient(conn, *flag)
 
 	}
 
 }
 
-func handleClient(conn net.Conn, baseDirectory *string) {
+func handleClient(conn net.Conn, baseDirectory string) {
 
 	defer conn.Close()
 
@@ -116,7 +116,7 @@ func HttpRequestFromString(request string) HttpRequest {
 
 }
 
-func CraftHttpResponse(request HttpRequest, baseDirectory *string) []byte {
+func CraftHttpResponse(request HttpRequest, baseDirectory string) []byte {
 
 	var response HttpResponse
 	var httpResponse string
