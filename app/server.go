@@ -161,7 +161,7 @@ func CraftHttpResponse(request HttpRequest, baseDirectory *string) []byte {
 
 			} else if tokenizedPath[0] == "files" {
 
-				file, err := os.ReadFile(*baseDirectory + "/" + tokenizedPath[1])
+				file, err := os.ReadFile(*baseDirectory + strings.Join(tokenizedPath[1:], "/"))
 
 				if err != nil {
 					fmt.Println("Error Reading File: ", err.Error())
