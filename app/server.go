@@ -164,13 +164,13 @@ func CraftHttpResponse(request HttpRequest, baseDirectory string) []byte {
 
 			} else if tokenizedPath[0] == "files" {
 
-				file, err := os.ReadFile(baseDirectory + strings.Join(tokenizedPath[1:], "/"))
+				file, err := os.ReadFile(baseDirectory + "/" + strings.Join(tokenizedPath[1:], "/"))
 
 				if err != nil {
 					fmt.Println("Error Reading File: ", err.Error())
 				}
 
-				fmt.Printf("\nRequested File: %v\n", baseDirectory+strings.Join(tokenizedPath[1:], "/"))
+				fmt.Printf("\nRequested File: %v\n", baseDirectory+"/"+strings.Join(tokenizedPath[1:], "/"))
 				response.StatusLine = HttpResponseOk
 				response.ResponseBody = string(file)
 				fmt.Printf("====== FILE CONTENTS ======\n%v", response.ResponseBody)
