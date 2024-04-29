@@ -168,18 +168,23 @@ func CraftHttpResponse(request HttpRequest, baseDirectory string) []byte {
 
 				if err != nil {
 					fmt.Println("Error Reading File: ", err.Error())
+
+					response.StatusLine = HttpResponseNotFound
+					httpResponse = response.StatusLine
+				} else {
+
+					fmt.Printf("\nRequested File: %v\n", baseDirectory+"/"+strings.Join(tokenizedPath[1:], "/"))
+					response.StatusLine = HttpResponseOk
+					response.ResponseBody = string(file)
+					fmt.Printf("====== FILE CONTENTS ======\n%v", response.ResponseBody)
+					response.BodyLength = len(response.ResponseBody)
+
+					httpResponse = response.StatusLine +
+						ApplicationResponse +
+						ContentLengthResponse + fmt.Sprintf("%v", response.BodyLength) + "\r\n\r\n" +
+						response.ResponseBody
+
 				}
-
-				fmt.Printf("\nRequested File: %v\n", baseDirectory+"/"+strings.Join(tokenizedPath[1:], "/"))
-				response.StatusLine = HttpResponseOk
-				response.ResponseBody = string(file)
-				fmt.Printf("====== FILE CONTENTS ======\n%v", response.ResponseBody)
-				response.BodyLength = len(response.ResponseBody)
-
-				httpResponse = response.StatusLine +
-					ApplicationResponse +
-					ContentLengthResponse + fmt.Sprintf("%v", response.BodyLength) + "\r\n\r\n" +
-					response.ResponseBody
 
 			} else {
 				response.StatusLine = HttpResponseNotFound
