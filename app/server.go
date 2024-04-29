@@ -35,6 +35,8 @@ func main() {
 
 	var flag = flag.String("directory", "", "Directory for file")
 
+	fmt.Printf("Home Directory: %v\n", *flag)
+
 	l, err := net.Listen("tcp", "0.0.0.0:4221")
 	if err != nil {
 		fmt.Println("Failed to bind to port 4221")
