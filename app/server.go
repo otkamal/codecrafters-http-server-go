@@ -114,7 +114,7 @@ func HttpRequestFromString(request string) HttpRequest {
 		userAgent = tokenizedRequest[2]
 		userAgent = strings.Split(userAgent, ":")[1]
 		userAgent = strings.Trim(userAgent, " ")
-		if len(tokenizedRequest) >= 6 {
+		if len(tokenizedRequest) > 6 {
 			body = tokenizedRequest[6]
 		}
 	}
