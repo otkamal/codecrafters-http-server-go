@@ -20,6 +20,7 @@ type HttpRequest struct {
 	Method    string
 	Path      string
 	UserAgent string
+	Body      string
 }
 
 type HttpResponse struct {
@@ -102,9 +103,9 @@ func HttpRequestFromString(request string) HttpRequest {
 	}
 
 	var userAgent string
-	//parsing is messed up and need to start from a later index in a situation where
+	// parsing is messed up and need to start from a later index in a situation where
 	// we are not given headers...
-	//this really needs to be fixed
+	// this really needs to be fixed
 	if len(tokenizedRequest) > 4 {
 		userAgent = tokenizedRequest[2]
 		userAgent = strings.Split(userAgent, ":")[1]
@@ -112,6 +113,10 @@ func HttpRequestFromString(request string) HttpRequest {
 	}
 
 	tokenizedStartLine := strings.Split(startLine, " ")
+
+	// if tokenizedStartLine[0] == "POST" {
+
+	// }
 
 	return HttpRequest{Method: tokenizedStartLine[0], Path: tokenizedStartLine[1], UserAgent: userAgent}
 
