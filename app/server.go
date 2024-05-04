@@ -11,9 +11,12 @@ import (
 const BufferSize int = 1024
 
 const HttpResponseOk string = "HTTP/1.1 200 OK\r\n"
+const HttpResponseCreated string = "HTTP/1.1 201 Created\r\n\r\n"
 const HttpResponseNotFound string = "HTTP/1.1 404 Not Found\r\n\r\n"
+
 const PlainTextResponse string = "Content-Type: text/plain\r\n"
 const ApplicationResponse string = "Content-Type: application/octet-stream\r\n"
+
 const ContentLengthResponse string = "Content-Length: "
 
 type HttpRequest struct {
@@ -103,6 +106,7 @@ func HttpRequestFromString(request string) HttpRequest {
 	}
 
 	var userAgent string
+	var body string
 	// parsing is messed up and need to start from a later index in a situation where
 	// we are not given headers...
 	// this really needs to be fixed
@@ -110,6 +114,7 @@ func HttpRequestFromString(request string) HttpRequest {
 		userAgent = tokenizedRequest[2]
 		userAgent = strings.Split(userAgent, ":")[1]
 		userAgent = strings.Trim(userAgent, " ")
+		body = tokenizedRequest[6]
 	}
 
 	tokenizedStartLine := strings.Split(startLine, " ")
@@ -118,7 +123,7 @@ func HttpRequestFromString(request string) HttpRequest {
 
 	// }
 
-	return HttpRequest{Method: tokenizedStartLine[0], Path: tokenizedStartLine[1], UserAgent: userAgent}
+	return HttpRequest{Method: tokenizedStartLine[0], Path: tokenizedStartLine[1], UserAgent: userAgent, Body: body}
 
 }
 
@@ -172,10 +177,12 @@ func CraftHttpResponse(request HttpRequest, baseDirectory string) []byte {
 				file, err := os.ReadFile(baseDirectory + "/" + strings.Join(tokenizedPath[1:], "/"))
 
 				if err != nil {
+
 					fmt.Println("Error Reading File: ", err.Error())
 
 					response.StatusLine = HttpResponseNotFound
 					httpResponse = response.StatusLine
+
 				} else {
 
 					fmt.Printf("\nRequested File: %v\n", baseDirectory+"/"+strings.Join(tokenizedPath[1:], "/"))
@@ -197,6 +204,18 @@ func CraftHttpResponse(request HttpRequest, baseDirectory string) []byte {
 			}
 
 		}
+
+	case "POST":
+
+		tokenizedPath := strings.Split(request.Path, "/")[1:]
+		err := os.WriteFile(baseDirectory+"/"+strings.Join(tokenizedPath[1:], "/"), []byte(request.Body), 0222)
+
+		if err != nil {
+			fmt.Println("Issue writing to file: ", err)
+		}
+
+		response.StatusLine = HttpResponseCreated
+		httpResponse = response.StatusLine
 
 	}
 
