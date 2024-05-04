@@ -208,7 +208,7 @@ func CraftHttpResponse(request HttpRequest, baseDirectory string) []byte {
 	case "POST":
 
 		tokenizedPath := strings.Split(request.Path, "/")[1:]
-		fmt.Printf("\n\n%v\n\n", []byte(request.Body))
+		fmt.Printf("\n\n%v\n\n", request.Body)
 		err := os.WriteFile(baseDirectory+"/"+strings.Join(tokenizedPath[1:], "/"), []byte(request.Body), 0222)
 
 		if err != nil {
