@@ -114,7 +114,9 @@ func HttpRequestFromString(request string) HttpRequest {
 		userAgent = tokenizedRequest[2]
 		userAgent = strings.Split(userAgent, ":")[1]
 		userAgent = strings.Trim(userAgent, " ")
-		body = tokenizedRequest[6]
+		if len(tokenizedRequest) >= 6 {
+			body = tokenizedRequest[6]
+		}
 	}
 
 	tokenizedStartLine := strings.Split(startLine, " ")
@@ -209,6 +211,7 @@ func CraftHttpResponse(request HttpRequest, baseDirectory string) []byte {
 
 		tokenizedPath := strings.Split(request.Path, "/")[1:]
 		request.Body = strings.Replace(request.Body, "\x00", "", -1)
+
 		fmt.Printf("\n\n%v\n\n", request.Body)
 		err := os.WriteFile(baseDirectory+"/"+strings.Join(tokenizedPath[1:], "/"), []byte(request.Body), 0644)
 
